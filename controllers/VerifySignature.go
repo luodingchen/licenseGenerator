@@ -11,6 +11,7 @@ import (
 	"licenseGenerator/service"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 func VerifySignature(c *gin.Context) {
@@ -20,7 +21,7 @@ func VerifySignature(c *gin.Context) {
 		res.Error(err.Error())
 		return
 	}
-	fileDir := "certificationFiles"
+	fileDir := "files"
 	fileName := filepath.Base(file.Filename)
 	err = c.SaveUploadedFile(file, fileDir+"/"+fileName)
 	if err != nil {
@@ -37,8 +38,11 @@ func VerifySignature(c *gin.Context) {
 		fmt.Println(err.Error())
 		return
 	}
+	var aesKey models.AesKey
+	dao.Db.Last(&aesKey)
+	decrypted, _ := service.AesDecrypt(string(fs), aesKey.AesKeyString)
 	var license models.License
-	err = yaml.Unmarshal(fs, &license)
+	err = yaml.Unmarshal(decrypted, &license)
 	if err != nil {
 		res.Error(err.Error())
 		return
@@ -51,10 +55,7 @@ func VerifySignature(c *gin.Context) {
 		return
 	}
 
-	var key models.RsaKey
-	dao.Db.First(&key, license.KeyID)
-
-	publicKey, err := service.DecodePublicKeyString(key.PublicKey)
+	publicKey, err := service.DecodePublicKeyString(license.LicensePublicKey)
 	if err != nil {
 		res.Error(err.Error())
 		return
@@ -69,6 +70,11 @@ func VerifySignature(c *gin.Context) {
 	err = service.Verify(publicKey, configBytes, license.LicenseSignature)
 	if err != nil {
 		res.Error(err.Error())
+		return
+	}
+	deadlineTime, err := time.Parse("2006-01-02 15:04:05.000", license.LicenseDeadline)
+	if deadlineTime.Before(time.Now()) {
+		res.Error("license had expired")
 		return
 	}
 	//
@@ -102,5 +108,5 @@ func VerifySignature(c *gin.Context) {
 	//	hardwareInfoList = append(hardwareInfoList, hardwareInfo)
 	//}
 
-	res.Success("LicenseSignature verification succeeded", nil)
+	res.Success("LicenseSignature verification succeeded", license.Config)
 }

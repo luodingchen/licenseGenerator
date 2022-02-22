@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -156,7 +157,7 @@ func SignLicense(c *gin.Context) {
 		res.Error(err.Error())
 		return
 	}
-	license.Config.HardwareList, err = service.GetContractHardwareList(contractId)
+	license.Config.HardwareList, err = service.GetContractHardwareInfoList(contractId)
 	if err != nil {
 		res.Error(err.Error())
 		return
@@ -247,9 +248,10 @@ func DownloadLicense(c *gin.Context) {
 
 	var aesKey models.AesKey
 	dao.Db.Last(&aesKey)
-	encryptedBytes, err := service.AesEncrypt(fileBytes, []byte(aesKey.AesKeyString))
+	encryptedBytes, err := service.AesEncrypt(fileBytes, aesKey.AesKeyString)
+	encryptedString := base64.StdEncoding.EncodeToString(encryptedBytes)
 
-	err = ioutil.WriteFile("files/license", encryptedBytes, 0666)
+	err = ioutil.WriteFile("files/license", []byte(encryptedString), 0666)
 	if err != nil {
 		res.Error(err.Error())
 		return

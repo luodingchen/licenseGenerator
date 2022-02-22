@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"licenseGenerator/dao"
 	"licenseGenerator/models"
 )
@@ -61,6 +62,24 @@ func GetContractProductList(contractID uint) ([]models.Product, error) {
 		productList = append(productList, product)
 	}
 	return productList, nil
+}
+
+func GetContractHardwareInfoList(contractID uint) ([]models.HardwareInfo, error) {
+	var hardwareList []models.Hardware
+	var hardwareInfoList []models.HardwareInfo
+	err := dao.Db.Where("contract_id = ?", contractID).Find(&hardwareList).Error
+	if err != nil {
+		return nil, err
+	}
+	for _, hardware := range hardwareList {
+		var hardwareInfo models.HardwareInfo
+		json.Unmarshal([]byte(hardware.Cpu), &hardwareInfo.Cpu)
+		json.Unmarshal([]byte(hardware.Host), &hardwareInfo.Host)
+		json.Unmarshal([]byte(hardware.Disk), &hardwareInfo.Disk)
+		json.Unmarshal([]byte(hardware.Net), &hardwareInfo.Net)
+		hardwareInfoList = append(hardwareInfoList, hardwareInfo)
+	}
+	return hardwareInfoList, nil
 }
 
 func GetContractHardwareList(contractID uint) ([]models.Hardware, error) {

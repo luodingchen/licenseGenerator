@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"encoding/base64"
 	"math/rand"
 	"time"
 )
@@ -36,7 +37,8 @@ func PKCS7UnPadding(origData []byte) []byte {
 }
 
 //AES加密,CBC
-func AesEncrypt(origData, key []byte) ([]byte, error) {
+func AesEncrypt(origData []byte, keyString string) ([]byte, error) {
+	key := []byte(keyString)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -50,7 +52,12 @@ func AesEncrypt(origData, key []byte) ([]byte, error) {
 }
 
 //AES解密
-func AesDecrypt(crypted, key []byte) ([]byte, error) {
+func AesDecrypt(cryptedString string, keyString string) ([]byte, error) {
+	crypted, err := base64.StdEncoding.DecodeString(cryptedString)
+	if err != nil {
+		return nil, err
+	}
+	key := []byte(keyString)
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err

@@ -10,7 +10,7 @@ type License struct {
 	ContractID uint      `json:"contract_id" gorm:"not null" yaml:"-"`
 	Contract   *Contract `yaml:"-"`
 
-	KeyID uint    `json:"key_id" gorm:"not null"`
+	KeyID uint    `json:"key_id" gorm:"not null" yaml:"-"`
 	Key   *RsaKey `yaml:"-"`
 
 	LicenseType         uint   `json:"license_type" yaml:"-"`   // 0试用、1正式99年 试用版期限最高30天
@@ -27,8 +27,8 @@ type License struct {
 }
 
 type Config struct {
-	StartTime    string     `json:"start_time"`
-	Deadline     string     `json:"deadline"`
-	ProductList  []Product  `json:"product_list"`
-	HardwareList []Hardware `json:"hardware_list"`
+	StartTime    string         `json:"start_time"`
+	Deadline     string         `json:"deadline"`
+	ProductList  []Product      `json:"product_list"`
+	HardwareList []HardwareInfo `json:"hardware_list"`
 }

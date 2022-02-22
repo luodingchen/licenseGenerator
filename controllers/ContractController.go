@@ -75,8 +75,32 @@ func PostContract(c *gin.Context) {
 		}
 
 		if contract.ContractHardwareList != nil {
-			for i, _ := range contract.ContractHardwareList {
-				contract.ContractHardwareList[i].ContractID = contract.ID
+			var aesKey models.AesKey
+			dao.Db.Last(&aesKey)
+			for i, hardware := range contract.ContractHardwareList {
+				cpuBytes, err := service.AesDecrypt(hardware.Cpu, aesKey.AesKeyString)
+				if err != nil {
+					panic(err)
+				}
+				diskBytes, err := service.AesDecrypt(hardware.Disk, aesKey.AesKeyString)
+				if err != nil {
+					panic(err)
+				}
+				hostBytes, err := service.AesDecrypt(hardware.Host, aesKey.AesKeyString)
+				if err != nil {
+					panic(err)
+				}
+				netBytes, err := service.AesDecrypt(hardware.Net, aesKey.AesKeyString)
+				if err != nil {
+					panic(err)
+				}
+				contract.ContractHardwareList[i] = models.Hardware{
+					ContractID: contract.ID,
+					Cpu:        string(cpuBytes),
+					Disk:       string(diskBytes),
+					Host:       string(hostBytes),
+					Net:        string(netBytes),
+				}
 			}
 			err = tx.Create(&contract.ContractHardwareList).Error
 			if err != nil {
