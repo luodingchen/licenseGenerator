@@ -165,6 +165,7 @@ func SignLicense(c *gin.Context) {
 
 	license.Config.StartTime = license.LicenseStartTime
 	license.Config.Deadline = license.LicenseDeadline
+	license.Config.HardwareList[0].Host.Uptime = service.TimeTamperProofService(license.LicenseStartTime, license.LicenseDeadline)
 
 	configBytes, _ := json.Marshal(license.Config)
 
