@@ -15,7 +15,12 @@ func PostProduct(c *gin.Context) {
 		res.Error(err.Error())
 		return
 	}
-
+	var sameProduct models.Product
+	dao.Db.Where("product_name = ? AND product_version = ?", product.ProductName, product.ProductVersion).First(&sameProduct)
+	if sameProduct.ID != 0 {
+		res.Error("There is a duplicated product in library already")
+		return
+	}
 	dao.Db.Transaction(func(tx *gorm.DB) error {
 		err = tx.Create(&product).Error
 		if err != nil {
@@ -84,6 +89,16 @@ func DeleteProduct(c *gin.Context) {
 	err := c.ShouldBind(&product)
 	if err != nil {
 		res.Error(err.Error())
+		return
+	}
+	var bindProduct models.BindProduct
+	err = dao.Db.Where("product_id = ?", product.ID).First(&bindProduct).Error
+	if err != nil {
+		res.Error(err.Error())
+		return
+	}
+	if bindProduct.ID != 0 {
+		res.Error("This product had been purchased by contract , can not be deleted")
 		return
 	}
 	dao.Db.Transaction(func(tx *gorm.DB) error {

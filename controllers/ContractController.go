@@ -80,19 +80,23 @@ func PostContract(c *gin.Context) {
 			for i, hardware := range contract.ContractHardwareList {
 				cpuBytes, err := service.AesDecrypt(hardware.Cpu, aesKey.AesKeyString)
 				if err != nil {
-					panic(err)
+					res.Error("Decrypt failed , please download latest HardwareMsgGenerator to encrypt your hardware info")
+					return err
 				}
 				diskBytes, err := service.AesDecrypt(hardware.Disk, aesKey.AesKeyString)
 				if err != nil {
-					panic(err)
+					res.Error("Decrypt failed , please download latest HardwareMsgGenerator to encrypt your hardware info")
+					return err
 				}
 				hostBytes, err := service.AesDecrypt(hardware.Host, aesKey.AesKeyString)
 				if err != nil {
-					panic(err)
+					res.Error("Decrypt failed , please download latest HardwareMsgGenerator to encrypt your hardware info")
+					return err
 				}
 				netBytes, err := service.AesDecrypt(hardware.Net, aesKey.AesKeyString)
 				if err != nil {
-					panic(err)
+					res.Error("Decrypt failed , please download latest HardwareMsgGenerator to encrypt your hardware info")
+					return err
 				}
 				contract.ContractHardwareList[i] = models.Hardware{
 					ContractID: contract.ID,

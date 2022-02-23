@@ -73,10 +73,22 @@ func GetContractHardwareInfoList(contractID uint) ([]models.HardwareInfo, error)
 	}
 	for _, hardware := range hardwareList {
 		var hardwareInfo models.HardwareInfo
-		json.Unmarshal([]byte(hardware.Cpu), &hardwareInfo.Cpu)
-		json.Unmarshal([]byte(hardware.Host), &hardwareInfo.Host)
-		json.Unmarshal([]byte(hardware.Disk), &hardwareInfo.Disk)
-		json.Unmarshal([]byte(hardware.Net), &hardwareInfo.Net)
+		err = json.Unmarshal([]byte(hardware.Cpu), &hardwareInfo.Cpu)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal([]byte(hardware.Host), &hardwareInfo.Host)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal([]byte(hardware.Disk), &hardwareInfo.Disk)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal([]byte(hardware.Net), &hardwareInfo.Net)
+		if err != nil {
+			return nil, err
+		}
 		hardwareInfoList = append(hardwareInfoList, hardwareInfo)
 	}
 	return hardwareInfoList, nil

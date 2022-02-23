@@ -21,5 +21,5 @@ func main() {
 	dao.Db.AutoMigrate(&models.Hardware{})
 	dao.Db.AutoMigrate(&models.License{})
 	r := routers.InitRouters()
-	r.Run(":8080")
+	r.Run(":80")
 }

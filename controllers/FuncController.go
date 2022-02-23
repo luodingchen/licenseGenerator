@@ -62,6 +62,16 @@ func DeleteFunc(c *gin.Context) {
 		res.Error(err.Error())
 		return
 	}
+	var bindFunc models.BindFunc
+	err = dao.Db.Where("func_id = ?", function.ID).First(&bindFunc).Error
+	if err != nil {
+		res.Error(err.Error())
+		return
+	}
+	if bindFunc.ID != 0 {
+		res.Error("This func had been purchased by contract , can not be deleted")
+		return
+	}
 	err = dao.Db.Delete(&function).Error
 	if err != nil {
 		res.Error(err.Error())
