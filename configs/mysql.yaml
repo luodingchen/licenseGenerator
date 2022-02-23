@@ -1,8 +1,8 @@
 type: mysql
-name: lms
-password: Lms#0121
+name: 
+password: 
 protocol: tcp
-ip: 10.10.50.68
-port: 31234
-library: license_generator
+ip: 
+port: 
+library: 
 char_set: utf8mb4
